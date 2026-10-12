@@ -1,55 +1,201 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI418 Lab 5 — Lo-fi Clickable Prototype</title>
+<title>AI418 Lab 5 — Accessible Prototype</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#eee;margin:0;padding:24px;color:#222}
-.screen{display:none;max-width:520px;margin:auto;background:#fff;border:2px solid #555;padding:24px;min-height:520px;box-sizing:border-box}
-.screen.active{display:block}
-.placeholder{border:2px solid #888;background:#ddd;padding:55px 15px;text-align:center;margin:22px 0}
-.line{height:12px;background:#ddd;margin:10px 0;width:90%}
-.line.short{width:60%}
-button{padding:14px 18px;border:2px solid #444;background:#ddd;color:#111;font-size:16px;cursor:pointer}
-button:hover{background:#ccc}
-textarea{width:100%;min-height:150px;box-sizing:border-box;border:2px solid #666;padding:12px;font-size:16px;background:#fff}
-label{display:block;font-weight:bold;margin-bottom:8px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+body {
+  font-family: Arial, sans-serif;
+  background: #eee;
+  margin: 0;
+  padding: 24px;
+  color: #222;
+}
+
+.screen {
+  display: none;
+  max-width: 520px;
+  margin: auto;
+  background: #fff;
+  border: 2px solid #555;
+  padding: 24px;
+  min-height: 520px;
+  box-sizing: border-box;
+}
+
+.screen.active {
+  display: block;
+}
+
+.placeholder {
+  border: 2px solid #888;
+  background: #ddd;
+  color: #111;
+  padding: 55px 15px;
+  text-align: center;
+  margin: 22px 0;
+}
+
+.line {
+  height: 12px;
+  background: #ddd;
+  margin: 10px 0;
+  width: 90%;
+}
+
+.line.short {
+  width: 60%;
+}
+
+button {
+  padding: 14px 18px;
+  border: 2px solid #333;
+  background: #e0e0e0;
+  color: #111;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #c8c8c8;
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 4px solid #005fcc;
+  outline-offset: 3px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 150px;
+  box-sizing: border-box;
+  border: 2px solid #555;
+  padding: 12px;
+  font-size: 16px;
+  background: #fff;
+  color: #111;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
 </style>
 </head>
+
 <body>
-<section id="s1" class="screen active">
-<h1>Lecture</h1>
-<div class="placeholder">Lecture content</div>
-<div class="line"></div><div class="line"></div><div class="line short"></div>
-<div class="actions">
-<button onclick="show('s2')" lang="ar" dir="rtl">اسأل بسرية</button></div>
+
+<section id="s1" class="screen active"
+         aria-labelledby="lecture-title"
+         aria-hidden="false">
+  <h1 id="lecture-title" tabindex="-1">Lecture</h1>
+
+  <div class="placeholder">Lecture content</div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line short"></div>
+
+  <div class="actions">
+    <button type="button"
+            onclick="show('s2')"
+            lang="ar" dir="rtl"
+            aria-label="اسأل بسرية">
+      اسأل بسرية
+    </button>
+  </div>
 </section>
 
-<section id="s2" class="screen">
-<h1>Ask the instructor privately</h1>
-<label for="q">Write your question</label>
-<textarea id="q" placeholder="Type your question here"></textarea>
-<div class="actions">
-<button onclick="show('s3')">Send question</button>
-<button onclick="show('s1')">Back to lecture</button>
-</div>
+<section id="s2" class="screen"
+         aria-labelledby="question-title"
+         aria-hidden="true">
+  <h1 id="question-title" tabindex="-1">
+    Ask the instructor privately
+  </h1>
+
+  <label for="q">Write your question</label>
+
+  <textarea id="q" name="question"
+            placeholder="Type your question here"
+            aria-describedby="question-help"
+            required></textarea>
+
+  <p id="question-help">
+    Enter your question. This prototype does not actually
+    send or store it.
+  </p>
+
+  <div class="actions">
+    <button type="button" onclick="sendQuestion()">
+      Send question
+    </button>
+
+    <button type="button" onclick="show('s1')">
+      Back to lecture
+    </button>
+  </div>
 </section>
 
-<section id="s3" class="screen">
-<h1>Question sent</h1>
-<div class="placeholder">Your question was sent privately to the instructor.</div>
-<div class="actions">
-<button onclick="show('s1')">Back to lecture</button>
-</div>
+<section id="s3" class="screen"
+         aria-labelledby="sent-title"
+         aria-hidden="true">
+  <h1 id="sent-title" tabindex="-1">Question sent</h1>
+
+  <div class="placeholder">
+    This is a prototype confirmation.
+    No question is actually sent.
+  </div>
+
+  <div class="actions">
+    <button type="button" onclick="show('s1')">
+      Back to lecture
+    </button>
+  </div>
 </section>
 
 <script>
-function show(id){
-  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function show(id) {
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.classList.remove('active');
+    screen.setAttribute('aria-hidden', 'true');
+  });
+
+  const nextScreen = document.getElementById(id);
+  nextScreen.classList.add('active');
+  nextScreen.setAttribute('aria-hidden', 'false');
+
+  const heading = nextScreen.querySelector('h1');
+  if (heading) heading.focus();
+}
+
+function sendQuestion() {
+  const question = document.getElementById('q');
+
+  if (!question.value.trim()) {
+    question.setCustomValidity(
+      'Please enter your question before continuing.'
+    );
+    question.reportValidity();
+    question.focus();
+    return;
+  }
+
+  question.setCustomValidity('');
+  show('s3');
 }
 </script>
+
 </body>
 </html>
+
